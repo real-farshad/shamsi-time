@@ -8,19 +8,19 @@ Shamsi Time is a versatile application designed to display the current date in t
 
 ## Features
 
--   **Dual Mode Functionality**: Choose between online and offline modes.
-    -   **Online Mode**: Retrieves the current time from `time.ir` and caches it for the day. Displays occasions and indicates if it's an official holiday.
-    -   **Offline Mode**: If the application is offline or unable to fetch data online, it will automatically switch to offline mode after some time. This mode doesn't display occasions or official holidays.
--   **User Configurable**: Easily switch between online and offline modes through the `config.txt` file.
--   **System Tray Integration**: Displays the Persian date in the system tray for quick access.
--   **Desktop Notifications**: Clicking the tray icon shows a detailed notification with the full date, occasions, and holiday status (in online mode).
--   **Simple Interface**: Right-click menu with an exit option for easy interaction.
+- **Dual Mode Functionality**: Choose between online and offline modes.
+  - **Online Mode**: Retrieves the current time from `time.ir` and caches it for the day. Displays occasions and indicates if it's an official holiday.
+  - **Offline Mode**: If the application is offline or unable to fetch data online, it will automatically switch to offline mode after some time. This mode doesn't display occasions or official holidays.
+- **User Configurable**: Easily switch between online and offline modes through the `config.txt` file.
+- **System Tray Integration**: Displays the Persian date in the system tray for quick access.
+- **Desktop Notifications**: Clicking the tray icon shows a detailed notification with the full date, occasions, and holiday status (in online mode).
+- **Simple Interface**: Right-click menu with an exit option for easy interaction.
 
 ## Pre-built Executable
 
 For ease of use, a pre-built executable is available in the Releases section of this repository.
 
-1. Go to the [Releases](https://github.com/m0hammadr3za/shamsi-time/releases) section.
+1. Go to the [Releases](https://github.com/real-farshad/shamsi-time/releases) section.
 2. Download the latest version of `Shamsi time.exe`.
 3. Optionally, to run the application at startup, follow the instructions in the 'Running on Startup' section.
 
@@ -33,12 +33,12 @@ To build from source or contribute to the project, follow these steps:
 
 ## Dependencies
 
--   Python
--   PyQt5
--   jdatetime
--   PyInstaller
--   requests (for online mode)
--   BeautifulSoup4 (for online mode)
+- Python
+- PyQt5
+- jdatetime
+- PyInstaller
+- requests (for online mode)
+- BeautifulSoup4 (for online mode)
 
 ## Running on Startup
 
