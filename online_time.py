@@ -28,8 +28,13 @@ def get_shamsi_time_info_online_impl():
     date_info = extract_shamsi_date_info(soup)
     month_occasions = extract_month_occasions(soup)
     date_info = add_occasions_to_date_info(date_info, month_occasions)
+
+    date_info['year'] = convert_to_farsi_numbers(date_info['year'])
+    date_info['month'] = convert_to_farsi_numbers(date_info['month'])
+    date_info['day'] = convert_to_farsi_numbers(date_info['day'])
     
     add_date_info_to_cache(date_info)
+
     return date_info
 
 def check_cache():
@@ -45,15 +50,21 @@ def get_soup_from_url(url):
     return soup
 
 def extract_shamsi_date_info(soup):
-    shamsi_time_soup = soup.find('div', {'class': 'today-shamsi'})
-    shamsi_time_spans = shamsi_time_soup.find_all('span')
+    time_boxes_wrapper = soup.find('div', class_=lambda c: c and 'DateBoxResult' in c)
+    time_boxes = time_boxes_wrapper.find_all('div', recursive=False)
+    shamsi_time_box = time_boxes[0]
 
-    date_text_elements = shamsi_time_spans[1].text.split('/')
+    shamsi_time_box_elements = shamsi_time_box.find_all('p', recursive=False)
+    shamsi_time_date_string = shamsi_time_box_elements[1]
+
+    date_text_elements = shamsi_time_date_string.text.split('/')
     year_index = date_text_elements[0]
     month_index = date_text_elements[1]
     day_index = date_text_elements[2]
 
-    descriptive_date_text = shamsi_time_spans[2].text
+    shamsi_time_descriptive_time_string = shamsi_time_box_elements[2]
+    descriptive_date_text = shamsi_time_descriptive_time_string.text
+    
     name_of_the_month = find_persian_month_name_in_text(descriptive_date_text)
     name_of_the_day = find_persian_day_name_in_text(descriptive_date_text)
 
@@ -66,26 +77,32 @@ def extract_shamsi_date_info(soup):
     }
 
 def extract_month_occasions(soup):
-    occasions_soup = soup.find('div', {'class': 'eventsCurrentMonthWrapper'}).find_all('li')
+    occasions_wrapper = soup.find('div', class_=lambda c: c and 'events__container' in c)
+    occasions = occasions_wrapper.find_all('div', recursive=False)
 
     month_occasions = {}
-    for occasion in occasions_soup:
-        text_elements = [text.strip() for text in occasion.text.split("\n")]
-        date_in_month = text_elements[1].split(' ')[0]
-        date_in_month = date_in_month if len(date_in_month) != 1 else f"۰{date_in_month}"
+    for occasion in occasions:
+        occasion_elements = occasion.find_all('span')
 
-        occasion_description = text_elements[2]
+        occasion_date = occasion_elements[0]
+        occasion_event = occasion_elements[1]
 
-        is_holiday = 'eventHoliday' in occasion.get('class', [])
+        occasion_date_text = occasion_date.text
+        occasion_event_text = occasion_event.text
 
-        if date_in_month in list(month_occasions.keys()):
-            previous_description = month_occasions[date_in_month]['occasion']
-            month_occasions[date_in_month]['occasion'] = f"{occasion_description}, {previous_description}"
+        day_index_in_date = occasion_date_text.split(' ')[0]
+        day_index_in_date = day_index_in_date if len(day_index_in_date) != 1 else f"۰{day_index_in_date}"
+
+        is_holiday = any('holiday' in cls for cls in occasion_date.get('class', [])) if occasion_date else False
+
+        if day_index_in_date in list(month_occasions.keys()):
+            previous_description = month_occasions[day_index_in_date]['occasion']
+            month_occasions[day_index_in_date]['occasion'] = f"{occasion_event_text}, {previous_description}"
             if is_holiday:
-                month_occasions[date_in_month]['is_holiday'] = is_holiday
+                month_occasions[day_index_in_date]['is_holiday'] = is_holiday
         else:
-            month_occasions[date_in_month] = {
-                "occasion": occasion_description,
+            month_occasions[day_index_in_date] = {
+                "occasion": occasion_event_text,
                 "is_holiday": is_holiday
             }
 
@@ -99,6 +116,10 @@ def add_occasions_to_date_info(date_info, month_occasions):
         new_date_info["is_holiday"] = day_occasion["is_holiday"]
 
     return new_date_info
+
+def convert_to_farsi_numbers(date_str):
+    western_to_farsi = str.maketrans('0123456789', '۰۱۲۳۴۵۶۷۸۹')
+    return date_str.translate(western_to_farsi)
 
 def add_date_info_to_cache(date_info):
     shamsi_time_cache['date'] = jdatetime.date.today()
